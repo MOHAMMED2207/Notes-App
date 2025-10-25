@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,16 +6,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import { AlertTriangle } from 'lucide-react';
+} from "./ui/dialog";
+import { Button } from "./ui/button";
+import { AlertTriangle } from "lucide-react";
 
-const DeleteModal = ({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
+const DeleteModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
   noteTitle,
-  isLoading = false 
+  isLoading = false,
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -26,16 +26,13 @@ const DeleteModal = ({
             <DialogTitle>Delete Note</DialogTitle>
           </div>
           <DialogDescription>
-            Are you sure you want to delete "{noteTitle}"? This action cannot be undone.
+            Are you sure you want to delete&nbsp;
+            <strong>&quot;{noteTitle}&quot;</strong>? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
-        
+
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
           <Button
@@ -43,7 +40,7 @@ const DeleteModal = ({
             onClick={onConfirm}
             disabled={isLoading}
           >
-            {isLoading ? 'Deleting...' : 'Delete'}
+            {isLoading ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>
       </DialogContent>

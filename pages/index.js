@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Button } from '../components/ui/button';
@@ -13,33 +13,32 @@ import TagFilter from '../components/TagFilter';
 import Pagination from '../components/Pagination';
 import { Plus, Search, Filter, SortAsc, SortDesc } from 'lucide-react';
 
-export default function Home() {
-  // State management
+  export default function Home() {
   const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'viewer'
+  const [currentView, setCurrentView] = useState('list');
   const [editingNote, setEditingNote] = useState(null);
   const [viewingNote, setViewingNote] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, note: null });
-  
-  // Search and filter state
+
+  // Filters & Sorting
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [sortBy, setSortBy] = useState('updatedAt');
   const [sortOrder, setSortOrder] = useState('desc');
   const [availableTags, setAvailableTags] = useState([]);
-  
-  // Pagination state
+
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalNotes, setTotalNotes] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [hasPrev, setHasPrev] = useState(false);
 
-  const limit = 12; // Notes per page
+  const limit = 12;
 
-  // Fetch notes from API
-  const fetchNotes = async () => {
+  // ✅ Fetch Notes (useCallback to prevent re-creation)
+  const fetchNotes = useCallback(async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams({
@@ -48,7 +47,7 @@ export default function Home() {
         page: currentPage.toString(),
         limit: limit.toString(),
         sort: sortBy,
-        order: sortOrder
+        order: sortOrder,
       });
 
       const response = await fetch(`/api/notes?${params}`);
@@ -68,10 +67,10 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery, selectedTag, currentPage, sortBy, sortOrder]);
 
-  // Fetch available tags
-  const fetchTags = async () => {
+  // ✅ Fetch Tags (useCallback as well)
+  const fetchTags = useCallback(async () => {
     try {
       const response = await fetch('/api/notes');
       const data = await response.json();
@@ -83,29 +82,27 @@ export default function Home() {
     } catch (error) {
       console.error('Error fetching tags:', error);
     }
-  };
+  }, []);
 
-  // Load notes on component mount and when filters change
+  // Load notes on filter/sort change
   useEffect(() => {
     fetchNotes();
-  }, [searchQuery, selectedTag, currentPage, sortBy, sortOrder]);
+  }, [fetchNotes]);
 
   // Load tags on mount
   useEffect(() => {
     fetchTags();
-  }, []);
+  }, [fetchTags]);
 
-  // Handle note creation/editing
+  // CRUD Handlers
   const handleSaveNote = async (noteData) => {
     try {
       const url = editingNote ? `/api/notes/${editingNote._id}` : '/api/notes';
       const method = editingNote ? 'PUT' : 'POST';
-      
+
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(noteData),
       });
 
@@ -125,7 +122,6 @@ export default function Home() {
     }
   };
 
-  // Handle note deletion
   const handleDeleteNote = async () => {
     if (!deleteModal.note) return;
 
@@ -149,7 +145,7 @@ export default function Home() {
     }
   };
 
-  // Event handlers
+  // UI Event Handlers
   const handleCreateNew = () => {
     setEditingNote(null);
     setCurrentView('editor');
@@ -175,26 +171,22 @@ export default function Home() {
     setViewingNote(null);
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+  const handlePageChange = (page) => setCurrentPage(page);
 
   const handleSearchChange = (query) => {
     setSearchQuery(query);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   const handleTagChange = (tag) => {
     setSelectedTag(tag);
-    setCurrentPage(1); // Reset to first page when filtering
+    setCurrentPage(1);
   };
 
-  const handleSortChange = (sort) => {
-    setSortBy(sort);
-  };
+  const handleSortChange = (sort) => setSortBy(sort);
 
   const toggleSortOrder = () => {
-    setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+    setSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'));
   };
 
   return (
@@ -216,8 +208,7 @@ export default function Home() {
           </div>
 
           {currentView === 'list' && (
-            <>
-              {/* Search and Filter Controls */}
+              <>
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -234,13 +225,13 @@ export default function Home() {
                         placeholder="Search notes by title or content..."
                       />
                     </div>
-                    
+
                     <TagFilter
                       selectedTag={selectedTag}
                       onTagChange={handleTagChange}
                       availableTags={availableTags}
                     />
-                    
+
                     <div className="flex gap-2">
                       <Select value={sortBy} onValueChange={handleSortChange}>
                         <SelectTrigger>
@@ -252,7 +243,7 @@ export default function Home() {
                           <SelectItem value="title">Title</SelectItem>
                         </SelectContent>
                       </Select>
-                      
+
                       <Button
                         variant="outline"
                         size="icon"
@@ -270,7 +261,6 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              {/* Create New Note Button */}
               <div className="mb-6">
                 <Button onClick={handleCreateNew} size="lg">
                   <Plus className="h-4 w-4 mr-2" />
@@ -278,7 +268,6 @@ export default function Home() {
                 </Button>
               </div>
 
-              {/* Notes List */}
               <NotesList
                 notes={notes}
                 onEdit={handleEdit}
@@ -288,7 +277,6 @@ export default function Home() {
                 isLoading={isLoading}
               />
 
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="mt-8">
                   <Pagination
@@ -319,8 +307,7 @@ export default function Home() {
               onClose={handleCancel}
             />
           )}
-
-          {/* Delete Confirmation Modal */}
+  
           <DeleteModal
             isOpen={deleteModal.isOpen}
             onClose={() => setDeleteModal({ isOpen: false, note: null })}

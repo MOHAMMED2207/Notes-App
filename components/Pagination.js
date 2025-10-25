@@ -1,27 +1,34 @@
-import { useState } from 'react';
-import { Button } from './ui/button';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import React, { useState } from "react";
+import { Button } from "./ui/button";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
-const Pagination = ({ 
-  currentPage, 
-  totalPages, 
+const Pagination = ({
+  currentPage,
+  totalPages,
   onPageChange,
   hasNext,
-  hasPrev 
+  hasPrev,
 }) => {
   const getVisiblePages = () => {
     const delta = 2;
     const range = [];
     const rangeWithDots = [];
 
-    for (let i = Math.max(2, currentPage - delta); 
-         i <= Math.min(totalPages - 1, currentPage + delta); 
-         i++) {
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
       range.push(i);
     }
 
     if (currentPage - delta > 2) {
-      rangeWithDots.push(1, '...');
+      rangeWithDots.push(1, "...");
     } else {
       rangeWithDots.push(1);
     }
@@ -29,7 +36,7 @@ const Pagination = ({
     rangeWithDots.push(...range);
 
     if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push('...', totalPages);
+      rangeWithDots.push("...", totalPages);
     } else if (totalPages > 1) {
       rangeWithDots.push(totalPages);
     }
@@ -43,6 +50,7 @@ const Pagination = ({
 
   return (
     <div className="flex items-center justify-center space-x-2">
+      {/* زر الذهاب لأول صفحة */}
       <Button
         variant="outline"
         size="sm"
@@ -51,7 +59,8 @@ const Pagination = ({
       >
         <ChevronsLeft className="h-4 w-4" />
       </Button>
-      
+
+      {/* زر الصفحة السابقة */}
       <Button
         variant="outline"
         size="sm"
@@ -61,9 +70,10 @@ const Pagination = ({
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
+      {/* أرقام الصفحات */}
       {visiblePages.map((page, index) => (
         <React.Fragment key={index}>
-          {page === '...' ? (
+          {page === "..." ? (
             <span className="px-2 py-1 text-sm text-muted-foreground">...</span>
           ) : (
             <Button
@@ -78,6 +88,7 @@ const Pagination = ({
         </React.Fragment>
       ))}
 
+      {/* زر الصفحة التالية */}
       <Button
         variant="outline"
         size="sm"
@@ -86,7 +97,8 @@ const Pagination = ({
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
-      
+
+      {/* زر آخر صفحة */}
       <Button
         variant="outline"
         size="sm"

@@ -75,11 +75,7 @@ cp env.example .env.local
 
 Edit `.env.local` with your MongoDB connection string:
 
-```env
-MONGODB_URI=mongodb://localhost:27017/notes-app
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key-here
-```
+
 
 ### 5. Database Setup
 
